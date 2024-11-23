@@ -4,8 +4,7 @@ This is the first project I implemented using just and command line and vim. Of 
 
 ## Steps involved
 
-So firstly, I created a new directory in cli. Then using git cli, I initialised the project. Finally, I used github cli to put the project on github.
-TODO
+So firstly, I created a new directory in cli. Then using git cli, I initialised the project. Finally, I used github cli to put the project on github. To use github cli, make sure you have setup your git user settings. Then get an ssh key. Go online to find out how to do that. Then you can run gh auth login to authenticate the user. finally you can run gh auth setup-git to allow seamless communication between git and github.
 
 # How to install the project
 
