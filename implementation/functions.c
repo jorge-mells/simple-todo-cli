@@ -3,19 +3,9 @@
 #include <assert.h>
 #include <string.h>
 
-typedef struct {
-    int id;
-    int priority;
-    int status;
-    char* name;
-    char* description;
-} todo_item;
+#include "functions.h"
 
-typedef struct {
-    todo_item** todo_list;
-    int capacity;
-    int size;
-} todos;
+static int id = 0;
 
 int max(int a, int b) {
     return a > b ? a : b;
@@ -53,7 +43,7 @@ void set(int idx, todo_item* new_item, todos* array) {
     // ensure that the index passed to set is small enough
     assert(idx >= 0 && idx < array -> size);
     (array -> todo_list)[idx] = new_item;
-    array -> capacity = max(array -> capacity, idx);
+    array -> capacity = max(array -> capacity, idx + 1);
     reallocate(array);
 }
 
@@ -70,7 +60,7 @@ void delete(int idx, todos* array) {
 void insert(int idx, todo_item* new_item, todos* array) {
     // ensure that the index is not negative and small enough
     assert(idx >= 0 && idx < array -> size);
-    for (int i = idx; i < array -> capacity; i++) {
+    for (int i = array -> capacity; i >= idx; i--) {
         (array -> todo_list)[i] = (array -> todo_list)[i - 1];
     }
     (array -> todo_list)[idx] = new_item;
@@ -98,6 +88,7 @@ void push_front(todo_item* new_item, todos* array) {
 
 void pop_front(todos* array) {
     free((array -> todo_list)[0]);
+    (array -> todo_list)[0] = NULL;
     for (int i = 1; i < array -> capacity; i++) {
         (array -> todo_list)[i - 1] = (array -> todo_list)[i];
     }
@@ -112,9 +103,9 @@ todos* initialise_todos() {
     return new_todo_list;
 }
 
-todo_item* create_todo_item(int id, int priority, int status, char* name, char* description) {
+todo_item* create_todo_item(int priority, int status, char* name, char* description) {
     todo_item* new_todo_item = (todo_item*) calloc(1, sizeof(todo_item));
-    new_todo_item -> id = id;
+    new_todo_item -> id = id++;
     new_todo_item -> priority = priority;
     new_todo_item -> status = status;
     new_todo_item -> name = name;
@@ -124,7 +115,7 @@ todo_item* create_todo_item(int id, int priority, int status, char* name, char* 
 
 todos* filter_todos(int id, int priority, int status, char* name, todos* todo_list) {
     todos* temporary_todos = initialise_todos();
-    if (id < 0) {
+    if (id >= 0) {
         assert(priority == 0 && status == 0 && name == NULL);
     } else {
         assert((priority == 0 && status == 0) || (priority == 0 && name == NULL) || (status == 0 && name == NULL));

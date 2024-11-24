@@ -25,6 +25,7 @@ The priority of a todo may be changed using the --priority='priority' flag. Any 
 Finally it would always be possible to reset the program by passing the --reset flag.
 
 The first flags allowed are the following: --new, --list --help, --reset, --delete, --complete, --priority='priority'. Other flags may follow after these flags.
+Only one of these flags may be first, and these flags cannot be used together.
 
 # Implementation
 

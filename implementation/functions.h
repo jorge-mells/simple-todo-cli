@@ -1,5 +1,5 @@
-#ifndef FUNCTIONS.H
-#define FUNCTIONS.H
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
 
 typedef struct {
     int id;
@@ -9,6 +9,7 @@ typedef struct {
     char* description;
 } todo_item;
 
+// ensure that only unique values are stored in the array, otherwise we would run into double pointer issues.
 typedef struct {
     todo_item** todo_list;
     int capacity;
@@ -33,7 +34,7 @@ void pop_front(todos* array);
 
 todos* initialise_todos(); 
 
-todo_item* create_todo_item(int id, int priority, int status, char* name, char* description); 
+todo_item* create_todo_item(int priority, int status, char* name, char* description); 
 
 todos* filter_todos(int id, int priority, int status, char* name, todos* todo_list); 
 
