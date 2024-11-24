@@ -1,0 +1,2 @@
+# any object files should be ignored.
+*.o, *.out
