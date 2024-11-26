@@ -6,46 +6,175 @@
 
 #include "functions.h"
 
-void handle_new_todo(int priority, int status, char* name, char* description, todos* todo_array) {
-    todo_item* new_todo = create_todo_item(priority, status, name, description);
+static struct option long_options[] = {
+    {"name", required_argument, NULL, 1}, 
+    {"description", required_argument, NULL, 2}, 
+    {"priority", required_argument, NULL, 3}, 
+    {"list", no_argument, NULL, 4},
+    {"complete", no_argument, NULL, 5},
+    {"pending", no_argument, NULL, 6},
+    {"id", required_argument, NULL, 7},
+    {"help", no_argument, NULL, 8},
+    {"delete", no_argument, NULL, 9},
+    {0, 0, 0, 0}
+};
+
+int handle_todo_creation(int argc, char** argv, todos* todo_array) {
+    char* name = optarg;
+    int check_opt = getopt_long(argc, argv, "", long_options, NULL);
+    char* description; 
+    if (check_opt == 2) {
+        description = optarg;
+    } else {
+        printf("you should provide a description as your second argument\n");
+        return 1;
+    }
+    check_opt = getopt_long(argc, argv, "", long_options, NULL);
+    int priority;
+    if (check_opt == 3) {
+        priority = atoi(optarg);
+    } else {
+        priority = 0;
+    }
+    todo_item* new_todo = create_todo_item(priority, -1, name, description);
     push_back(new_todo, todo_array);
+    return 0;
+}
+
+int handle_printing(int argc, char** argv, todos* todo_array) {
+    int check_opt;
+    check_opt = getopt_long(argc, argv, "", long_options, NULL);
+    int priority; 
+    if (check_opt == 3) {
+        priority = atoi(optarg);
+        todos* filtered = filter_todos(-1, priority, 0, NULL, todo_array);
+        print_todos(filtered);
+        free(filtered);
+    } else if (check_opt == 5) {
+        todos* filtered = filter_todos(-1, -1, 1, NULL, todo_array);
+        print_todos(filtered);
+        free(filtered);
+    } else if (check_opt == 6) {
+        todos* filtered = filter_todos(-1, -1, -1, NULL, todo_array);
+        print_todos(filtered);
+        free(filtered);
+    } else {
+        print_todos(todo_array);
+    }
+    return 0;
+}
+
+int handle_todo_completion(int argc, char** argv, todos* todo_array) {
+    int check_opt;
+    check_opt = getopt_long(argc, argv, "", long_options, NULL);
+    if (check_opt == 1) {
+        char* name = optarg;
+        todos* filtered = filter_todos(-1, -1, 0, name, todo_array);
+        if (filtered -> capacity == 1) {
+            (filtered -> todo_list)[0] -> status = 1;
+        } else {
+            printf("this name is not unique or cannot be found, please use an id\n");
+            return 1;
+        }
+        free(filtered);
+    } else if (check_opt == 7) {
+        int id = atoi(optarg);
+        todos* filtered = filter_todos(id, -1, 0, NULL, todo_array);
+        assert(filtered -> capacity == 1 || filtered -> capacity == 0);
+        if (filtered -> capacity == 1) {
+            (filtered -> todo_list)[0] -> status = 1;
+        }
+        free(filtered);
+    }
+    return 0;
+}
+
+void handle_help() {
+    char* help = "(note that all options in square brackets are not compulsory.)\nto create a new todo, use:\n\t --name 'name' --description 'description' [priority='priority'] (priority must be between 1 and 3)\nto print your todos, use\n\t --list [--complete] [--pending] [--priority='priority'] (in this case priority can also be 0)\nto complete todos, use\n\t --complete --id | --name (followed by the appropriate argument)\nto display this page use\n\t --help\nyou can delete with\n\t --delete --id | --name (followed by appropriate argument)\nyou can reset with \n\t --reset 0 | 1 (1 means you'll use the program again, 0 means you're done for good (I understand it's bad))\nnote: --reset and --delete do not work now so you'll have to wait. You can open the file and edit your todos there (super stupid but yeah)";
+    printf("%s\n", help);
+}
+
+int handle_todo_priority(int argc, char** argv, todos* todo_array) {
+    int check_opt;
+    int priority = atoi(optarg);
+    check_opt = getopt_long(argc, argv, "", long_options, NULL);
+    if (check_opt == 1) {
+        char* name = optarg;
+        todos* filtered = filter_todos(-1, -1, 0, name, todo_array);
+        if (filtered -> capacity == 1) {
+            (filtered -> todo_list)[0] -> priority = priority;
+        } else {
+            printf("this name is not unique or cannot be found, please use an id\n");
+            return 1;
+        }
+        free(filtered);
+    } else if (check_opt == 7) {
+        int id = atoi(optarg);
+        todos* filtered = filter_todos(id, -1, 0, NULL, todo_array);
+        assert(filtered -> capacity == 1 || filtered -> capacity == 0);
+        if (filtered -> capacity == 1) {
+            (filtered -> todo_list)[0] -> priority = priority;
+        }
+        free(filtered);
+    }
+    return 0;
+}
+
+
+int handle_delete(int argc, char** argv, todos* todo_array) {
+    int check_opt;
+    check_opt = getopt_long(argc, argv, "", long_options, NULL);
+    if (check_opt == 1) {
+        char* name = optarg;
+        todos* filtered = filter_todos(-1, -1, 0, name, todo_array);
+        if (filtered -> capacity == 1) {
+            int id = (filtered -> todo_list)[0] -> id;
+            delete(id, todo_array);
+        } else {
+            printf("this name is not unique or cannot be found, please use an id\n");
+            return 1;
+        }
+        free(filtered);
+    } else if (check_opt == 7) {
+        int id = atoi(optarg);
+        todos* filtered = filter_todos(id, -1, 0, NULL, todo_array);
+        assert(filtered -> capacity == 1 || filtered -> capacity == 0);
+        if (filtered -> capacity == 1) {
+            id = (filtered -> todo_list)[0] -> id;
+        }
+        free(filtered);
+        delete(id, todo_array);
+    }
+    return 0;
 }
 
 int handle_options(int argc, char** argv, todos* todo_array) {
     int selected_option = -1;
-    static struct option long_options[] = {
-        {"new", required_argument, NULL, 1}, 
-        {"name", required_argument, NULL, 2}, 
-        {"priority", required_argument, NULL, 3}, 
-        {"list", no_argument, NULL, 4},
-        {0, 0, 0, 0}
-    };
-    int check_opt = getopt_long(argc, argv, "", long_options, &selected_option);
+    int check_opt = getopt_long(argc, argv, "", long_options, NULL);
     // handle the creation of new todos
     if (check_opt == 1) {
-        char* description = optarg;
-        check_opt = getopt_long(argc, argv, "", long_options, &selected_option);
-        char* name; 
-        if (check_opt == 2) {
-            name = optarg;
-        } else {
-            printf("you should provide a name as your second argument\n");
-            return 1;
-        }
-        check_opt = getopt_long(argc, argv, "", long_options, &selected_option);
-        int priority;
-        if (check_opt == 3) {
-            priority = atoi(optarg);
-        } else {
-            priority = 0;
-        }
-        handle_new_todo(priority, -1, name, description, todo_array);
-        return 0;
+        int success = handle_todo_creation(argc, argv, todo_array);
+        return success;
     }
 
     if (check_opt == 4) {
-        print_todos(todo_array);
+        int success = handle_printing(argc, argv, todo_array);
+        return success;
+    }
+
+    if (check_opt == 5) {
+        int success = handle_todo_completion(argc, argv, todo_array);
+        return success;
+    }
+
+    if (check_opt == 8) {
+        handle_help();
         return 0;
+    }
+
+    if (check_opt == 9) {
+        int success = handle_delete(argc, argv, todo_array);
+        return success;
     }
 
     if (check_opt == -1) {
@@ -117,7 +246,7 @@ int main(int argc, char** argv) {
     todos* todo_database = retrieve_data();
     int failure = handle_options(argc, argv, todo_database);
     if (failure) {
-        printf("option handling problems");
+        printf("option handling problems\n");
         return 1;
     }
     failure = store_data(todo_database);

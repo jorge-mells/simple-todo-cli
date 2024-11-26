@@ -8,7 +8,7 @@ This todo app can create new todos, display todos, display basic help info,
 remove todos, and change the priorities of todos.
 
 - Creating Todos
-A simple todo can be created by using the --new flag and passing a string describing the todo.
+A simple todo can be created by using the --description flag and passing a string describing the todo.
 A --name flag has to be passed as well to identify the todo.
 The todo might be assigned a priority as well, using the --priority='priority' flag. There are
 three possible priority levels assigned the values 1, 2 and 3 with 1 being the lowest priority.
@@ -24,7 +24,7 @@ The priority of a todo may be changed using the --priority='priority' flag. Any 
 
 Finally it would always be possible to reset the program by passing the --reset flag.
 
-The first flags allowed are the following: --new, --list --help, --reset, --delete, --complete, --priority='priority'. Other flags may follow after these flags.
+The first flags allowed are the following: --description, --list --help, --reset, --delete, --complete, --priority='priority'. Other flags may follow after these flags.
 Only one of these flags may be first, and these flags cannot be used together.
 
 # Implementation

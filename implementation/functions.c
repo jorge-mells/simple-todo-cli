@@ -52,6 +52,7 @@ void delete(int idx, todos* array) {
     assert(idx >= 0 && idx < array -> size);
     todo_item* remove = (array -> todo_list)[idx];
     (array -> todo_list)[idx] = NULL;
+    printf("here");
     free(remove);
     array -> capacity = max(array -> capacity, idx - 1);
     reallocate(array);
@@ -116,9 +117,9 @@ todo_item* create_todo_item(int priority, int status, char* name, char* descript
 todos* filter_todos(int id, int priority, int status, char* name, todos* todo_list) {
     todos* temporary_todos = initialise_todos();
     if (id >= 0) {
-        assert(priority == 0 && status == 0 && name == NULL);
+        assert(priority == -1 && status == 0 && name == NULL);
     } else {
-        assert((priority == 0 && status == 0) || (priority == 0 && name == NULL) || (status == 0 && name == NULL));
+        assert((priority == -1 && status == 0) || (priority == -1 && name == NULL) || (status == 0 && name == NULL));
     }
     if (id >=0) {
         for (int i = 0; i < todo_list -> capacity; i++) {
@@ -129,8 +130,8 @@ todos* filter_todos(int id, int priority, int status, char* name, todos* todo_li
         return temporary_todos;
     }
 
-    if (priority != 0) {
-        assert(priority > 0 && priority < 4);
+    if (priority != -1) {
+        assert(priority >= 0 && priority < 4);
         for (int i = 0; i < todo_list -> capacity; i++) {
             if ((todo_list -> todo_list)[i] -> priority == priority) {
                 push_back((todo_list -> todo_list)[i], temporary_todos);
