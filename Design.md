@@ -46,3 +46,6 @@ The remaining functions handle the interface:
 2. main(int argc, char** argv)
 
 Finally there are also functions to handle the deletion of the todo array.
+
+!! IMPORTANT !!
+Don't forget to add scripts to install and uninstall the program, so that you don't need to use ./
