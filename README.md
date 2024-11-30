@@ -16,6 +16,7 @@ git clone https://github.com/jorge-mells/simple-todo-cli.git
 To uninstall use
 ```
 ./uninstall.sh
+hash -d todo
 ```
 
 # Example Usage
