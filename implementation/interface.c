@@ -3,6 +3,7 @@
 #include <getopt.h>
 #include <assert.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "functions.h"
 
@@ -194,8 +195,13 @@ int handle_options(int argc, char** argv, todos* todo_array) {
 }
 
 todos* retrieve_data() {
+    char *home = getenv("HOME");
+    if (home == NULL) {
+        /* handle the error, although POSIX requires HOME to be set */
+    }
+    chdir(home);
     todos* todo_database = initialise_todos();
-    FILE* fptr = fopen("data", "r");
+    FILE* fptr = fopen(".todo_data", "r");
     if (!fptr) {
         return todo_database;
     }
@@ -238,7 +244,12 @@ todos* retrieve_data() {
 }
 
 int store_data(todos* todo_database) {
-    FILE* fptr = fopen("data", "w");
+    char *home = getenv("HOME");
+    if (home == NULL) {
+        /* handle the error, although POSIX requires HOME to be set */
+    }
+    chdir(home);
+    FILE* fptr = fopen(".todo_data", "w");
     if (!fptr) {
         return 1;
     }
