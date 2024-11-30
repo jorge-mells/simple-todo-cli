@@ -52,7 +52,6 @@ void delete(int idx, todos* array) {
     assert(idx >= 0 && idx < array -> size);
     todo_item* remove = (array -> todo_list)[idx];
     (array -> todo_list)[idx] = NULL;
-    printf("here");
     free(remove);
     array -> capacity = max(array -> capacity, idx - 1);
     reallocate(array);
@@ -199,14 +198,16 @@ int complete_todo(int id, char* name, todos* todo_list) {
     return 0;
 }
 
-todos* reset_app(todos* old_list, int end_program) {
+void reset_app(todos* old_list, int end_program) {
     for (int i = 0; i < old_list -> capacity; i++) {
-        free((old_list -> todo_list)[i]);
+        if ((old_list -> todo_list)[i] != NULL) {
+            free((old_list -> todo_list)[i]);
+        }
     }
     free(old_list);
     if (end_program) {
-        return NULL;
+        old_list = NULL;
     } else {
-        return initialise_todos();
+        old_list = initialise_todos();
     }
 }

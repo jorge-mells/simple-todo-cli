@@ -16,6 +16,7 @@ static struct option long_options[] = {
     {"id", required_argument, NULL, 7},
     {"help", no_argument, NULL, 8},
     {"delete", no_argument, NULL, 9},
+    {"reset", no_argument, NULL, 10},
     {0, 0, 0, 0}
 };
 
@@ -90,7 +91,7 @@ int handle_todo_completion(int argc, char** argv, todos* todo_array) {
 }
 
 void handle_help() {
-    char* help = "(note that all options in square brackets are not compulsory.)\nto create a new todo, use:\n\t --name 'name' --description 'description' [priority='priority'] (priority must be between 1 and 3)\nto print your todos, use\n\t --list [--complete] [--pending] [--priority='priority'] (in this case priority can also be 0)\nto complete todos, use\n\t --complete --id | --name (followed by the appropriate argument)\nto display this page use\n\t --help\nyou can delete with\n\t --delete --id | --name (followed by appropriate argument)\nyou can reset with \n\t --reset 0 | 1 (1 means you'll use the program again, 0 means you're done for good (I understand it's bad))\nnote: --reset and --delete do not work now so you'll have to wait. You can open the file and edit your todos there (super stupid but yeah)";
+    char* help = "(note that all options in square brackets are not compulsory.)\nto create a new todo, use:\n\t --name 'name' --description 'description' [priority='priority'] (priority must be between 1 and 3)\nto print your todos, use\n\t --list [--complete] [--pending] [--priority='priority'] (in this case priority can also be 0)\nto complete todos, use\n\t --complete --id | --name (followed by the appropriate argument)\nto display this page use\n\t --help\nyou can delete with\n\t --delete --id | --name (followed by appropriate argument)\nyou can reset with \n\t --reset\n(please don't do anything 'stupid', this app is very fragile)\n";
     printf("%s\n", help);
 }
 
@@ -177,7 +178,17 @@ int handle_options(int argc, char** argv, todos* todo_array) {
         return success;
     }
 
+    if (check_opt == 10) {
+        return 2;
+    }
+
     if (check_opt == -1) {
+        return 0;
+    }
+
+    if (check_opt == '?') {
+        printf("\nyou probably passed the incorrect option. Here is some help\n\n");
+        handle_help();
         return 0;
     }
 }
@@ -220,7 +231,6 @@ todos* retrieve_data() {
         strcpy(actual_description, description);
 
         todo_item* new_todo_item = create_todo_item(priority, status, actual_name, actual_description);
-        assert(new_todo_item -> id == id); 
         push_back(new_todo_item, todo_database);
     }
     fclose(fptr);
@@ -235,7 +245,9 @@ int store_data(todos* todo_database) {
     
     for (int i = 0; i < todo_database -> capacity; i++) {
         todo_item* item = get(i, todo_database);
-        fprintf(fptr, "%d,%d,%d,%s,%s\n", item -> id, item -> priority, item -> status, item -> name, item -> description);
+        if (item != NULL) {
+            fprintf(fptr, "%d,%d,%d,%s,%s\n", item -> id, item -> priority, item -> status, item -> name, item -> description);
+        }
     }
 
     fclose(fptr);
@@ -245,9 +257,12 @@ int store_data(todos* todo_database) {
 int main(int argc, char** argv) {
     todos* todo_database = retrieve_data();
     int failure = handle_options(argc, argv, todo_database);
-    if (failure) {
+    if (failure == 1) {
         printf("option handling problems\n");
         return 1;
+    }
+    if (failure == 2) {
+        todo_database = initialise_todos();
     }
     failure = store_data(todo_database);
     if (failure) {
@@ -255,6 +270,10 @@ int main(int argc, char** argv) {
         return 1;
     }
     reset_app(todo_database, 1);
-    printf("successful test\n");
+    if (optind == 1) {
+        printf("\nyou probably passed the incorrect option. Here is some help\n\n");
+        handle_help();
+        return 0;
+    }
     return 0;
 }

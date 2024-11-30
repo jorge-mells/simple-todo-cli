@@ -46,6 +46,6 @@ int delete_todo(int id, todos* todo_list);
 
 int complete_todo(int id, char* name, todos* todo_list); 
 
-todos* reset_app(todos* old_list, int end_program); 
+void reset_app(todos* old_list, int end_program); 
 
 #endif
