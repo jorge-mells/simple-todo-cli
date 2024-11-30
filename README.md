@@ -6,7 +6,7 @@ This is the first project I implemented using just the command line and vim. Of 
 
 Please note that this only works for linux users. For non linux users, just use linux, or install wsl to run this app. (I have no idea why you even want to use this app)
 
-To install this project simply clone the project and open the folder in a web browser locally where you can display all pages.
+To install this project run the following instructions. Ensure you are in the directory with the project to install or uninstall the app
 
 ```
 git clone https://github.com/jorge-mells/simple-todo-cli.git
